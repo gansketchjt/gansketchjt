@@ -1,3 +1,5 @@
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -136,5 +138,6 @@ checkpoint/
 samples/
 cache_eval/
 output/
+cache_files/
 .vscode/
-*.pth
+

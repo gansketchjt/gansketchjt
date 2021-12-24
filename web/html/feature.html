@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GANSketch</title>
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+</head>
+
+<body>
+    <h1>GANSketch With Jittor</h1>
+    <h2>Latent Space编辑</h2>
+    <p id='image-hint'>正在生成长毛猫猫~</p>
+    <div style="text-align: center; margin: 0px auto;">
+        <img id="origin">
+        <img id='image'>
+    </div>
+    <div style="text-align: center; width: 50%; margin: 0px auto;">
+        <label id='slide-value'>50</label>
+        <input class='slide' id="range" type="range" value="100" onchange="changeValue()" style="width: 70%;">
+    </div>
+    <div style="text-align: center; width: 50%; margin: 0px auto;">
+        <button class="page-button" type="menu" onclick="request_image()">生成</button>
+        <button class="page-button" onclick="save_image()">保存</button>
+        <button class="page-button" onclick="window.location.href='/'">返回</button>
+    </div>
+</body>
+
+<script>
+    let slide = document.getElementById('range');
+    let slide_value = document.getElementById('slide-value')
+    slide.value = 50
+
+    function changeValue() {
+        slide_value.innerText = slide.value
+    }
+
+    function loadImage(uri, callback) {
+        if (typeof callback != 'function') {
+            callback = function (uri) {
+                console.log(uri);
+            }
+        }
+        let xhr = new XMLHttpRequest();
+        xhr.responseType = 'blob';
+        xhr.onload = function () {
+            callback(window.URL.createObjectURL(xhr.response));
+        }
+        xhr.open('GET', uri, true);
+        xhr.send();
+    }
+
+    let image = document.getElementById('image');
+    let originImage = document.getElementById('origin');
+    let hint = document.getElementById('image-hint');
+
+    function request_image() {
+        image.style.display = 'none';
+        originImage.style.display = 'none';
+        hint.style.display = 'block';
+        loadImage('/feature/image/' + slide.value, function (uri) {
+            image.style.display = 'inline-block';
+            image.src = uri;
+            hint.style.display = 'none';
+            loadImage('/feature/origin', function (uri) {
+                originImage.style.display = 'inline-block';
+                originImage.src = uri;
+            });
+        });
+    }
+
+    function save_image() {
+        if (image.style.display == 'none') {
+            alert('再等等~');
+            return;
+        }
+
+        let e = new MouseEvent('click');
+        let a = document.createElement('a');
+        a.download = '下载图片';
+        a.href = image.src;
+        a.dispatchEvent(e);
+    }
+
+    request_image();
+</script>
+
+</html>
