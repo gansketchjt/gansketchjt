@@ -141,3 +141,6 @@ output/
 cache_files/
 .vscode/
 
+web/static/*.png
+pretrained/*.pth
+pretrained/**/*.pth

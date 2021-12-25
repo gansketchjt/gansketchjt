@@ -11,9 +11,12 @@
 
 <body>
     <h1>GANSketch With Jittor</h1>
-    <h2>随机生成猫猫</h2>
-    <p id='image-hint'>正在生成猫猫~</p>
-    <img id='image'>
+    <h2>随机生成图片</h2>
+    <p id='image-hint'>正在生成图片~</p>
+    <div style="text-align: center; margin: 0px auto;">
+        <img id='origin'>
+        <img id='image'>
+    </div>
     <div style="text-align: center; width: 50%; margin: 0px auto;">
         <button class="page-button" type="menu" onclick="request_image()">随机</button>
         <button class="page-button" onclick="save_image()">保存</button>
@@ -38,15 +41,21 @@
     }
 
     let image = document.getElementById('image');
+    let imageOrigin = document.getElementById('origin');
     let hint = document.getElementById('image-hint');
 
     function request_image() {
         image.style.display = 'none';
+        imageOrigin.style.display = 'none';
         hint.style.display = 'block';
         loadImage('/generate/image', function(uri) {
-            image.style.display = 'block';
+            image.style.display = 'inline-block';
             image.src = uri;
             hint.style.display = 'none';
+            loadImage('/generate/origin', function(uri) {
+                imageOrigin.style.display = 'inline-block';
+                imageOrigin.src = uri;
+            });
         });
     }
 

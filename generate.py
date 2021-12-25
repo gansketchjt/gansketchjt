@@ -45,16 +45,49 @@ def generate(args, netG, mean_latent):
                 z_batch = sample_z[start:end]
                 (sample, _) = netG([z_batch], truncation=args.truncation, truncation_latent=mean_latent)
                 for s in sample:
-                    save_image_pytorch(s, f'{args.save_dir}/{str(ind).zfill(6)}.png')
+                    save_image_pytorch(s, f'{args.save_dir}/{str(ind).zfill(6)}after.png')
                     ind += 1
+            if args.origin_ckpt is None:
+                return
+            ind=0
+            checkpoint = jt.load(args.origin_ckpt)
+            netG.load_parameters(checkpoint)
+            sample_z = (jt.load(args.fixed_z) + w_shift)
+         
+            for start in range(0, sample_z.shape[0], args.batch_size):
+                end = min((start + args.batch_size), sample_z.shape[0])
+                z_batch = sample_z[start:end]
+                (sample, _) = netG([z_batch], truncation=args.truncation, truncation_latent=mean_latent)
+                for s in sample:
+                    save_image_pytorch(s, f'{args.save_dir}/{str(ind).zfill(6)}before.png')
+                    ind += 1
+
             return
+        zs=[]
         for start in range(0, args.samples, args.batch_size):
             end = min((start + args.batch_size), args.samples)
             batch_sz = (end - start)
-            sample_z = (jt.randn(batch_sz, 512) + w_shift)       
+            sample_z = (jt.randn(batch_sz, 512) + w_shift)
+            zs.append(sample_z)     
             (sample, _) = netG([sample_z], truncation=args.truncation, truncation_latent=mean_latent)
             for s in sample:
-                save_image_pytorch(s, f'{args.save_dir}/{str(ind).zfill(6)}.png')
+                save_image_pytorch(s, f'{args.save_dir}/{str(ind).zfill(6)}after.png')
+                ind += 1
+        if args.origin_ckpt is None:
+                return
+        ind=0
+        checkpoint = jt.load(args.origin_ckpt)
+        netG.load_parameters(checkpoint)
+        zid=0
+        for start in range(0, args.samples, args.batch_size):
+            end = min((start + args.batch_size), args.samples)
+            batch_sz = (end - start)
+            # sample_z = (jt.randn(batch_sz, 512) + w_shift)       
+            sample_z=zs[zid]
+            zid=zid+1
+            (sample, _) = netG([sample_z], truncation=args.truncation, truncation_latent=mean_latent)
+            for s in sample:
+                save_image_pytorch(s, f'{args.save_dir}/{str(ind).zfill(6)}before.png')
                 ind += 1
 if (__name__ == '__main__'):
     parser = argparse.ArgumentParser()
@@ -62,6 +95,7 @@ if (__name__ == '__main__'):
     parser.add_argument('--ckpt', type=str, default=None, help='checkpoint file for the generator')
     parser.add_argument('--size', type=int, default=256, help='output size of the generator')
     parser.add_argument('--fixed_z', type=str, default=None, help='expect a .pth file. If given, will use this file as the input noise for the output')
+    parser.add_argument('--origin_ckpt',type=str,default=None)
     parser.add_argument('--w_shift', type=str, default=None, help='expect a .pth file. Apply a w-latent shift to the generator')
     parser.add_argument('--batch_size', type=int, default=50, help='batch size used to generate outputs')
     parser.add_argument('--samples', type=int, default=50, help='number of samples to generate, will be overridden if --fixed_z is given')
