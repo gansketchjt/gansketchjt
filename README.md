@@ -147,6 +147,16 @@ Use the following script to evaluate the models, the results will be saved in a 
 python run_metrics.py --models_list weights/eval_list --output metric_results.csv
 ```
 
+## Web Demo
+
+We also provide with a small web demo that you could try on your own. Just run
+
+```bash
+python3 web/main.py
+```
+
+The web demo should listen on 127.0.0.1 and you could use your web browser to view it.
+
 ## Acknowledgments
 
 This repository is largely based on the original repository [**GANSketch**](https://github.com/PeterWang512/GANSketching) implemented in PyTorch.
